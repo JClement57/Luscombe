@@ -1,0 +1,26 @@
+Location: House
+
+Image: /assets/img.png
+
+Intro: blah blah you see a bucket
+
+key {
+    look, examine, look at: "you see it"
+    take, pick up: "you pick up the key"
+}
+
+actions: {
+    climb: goto Sky
+    walk north: goto Sky
+}
+
+#####
+
+Location: Sky
+
+key {
+    use key: if key: you unlock the door
+}
+
+
+### keywords: goto, Location, Image, Into
