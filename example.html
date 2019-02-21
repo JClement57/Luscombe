@@ -1,0 +1,153 @@
+<head>
+    <title>Luscombe Example Adventure</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="line"></div>
+    <div>
+        <span>></span>
+        <input id="console">
+    </div>
+</body>
+<script>
+
+var input = document.getElementById('console');
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d')
+var done = false;
+
+const ENTER = 13;
+
+canvas.width = getWidth();
+canvas.height = getHeight() - 25;
+
+function getWidth() {
+  return Math.max(
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+}
+
+function getHeight() {
+  return Math.max(
+    document.body.scrollHeight,
+    document.documentElement.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight,
+    document.documentElement.clientHeight
+  );
+}
+
+function goto(location) {
+    currentLocation = location;
+}
+
+locations = [
+{
+    name: 'Yard',
+    intro: 'Welcome to the yard, there is a rake in front of you.',
+    actions: {
+        leave: ['You walk out of the yard.', 1],
+        rake: ['You use the rake.', ['pick up', 'take', 'use']]
+    }
+},
+{
+    name: 'House',
+    intro: 'Hello World!',
+    actions: {
+        leave: ['You walk out of the house.', 0]
+    }
+}
+];
+
+var currentLocation = 1;
+var lastAction = '';
+
+function draw() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, getWidth(), getHeight());
+
+    ctx.fillStyle = "white";
+    ctx.font = "30pt Arial";
+    ctx.textAlign = "start";
+    ctx.fillText('->' + lastAction, 20, canvas.height - 40);
+    ctx.textAlign = "center";
+    ctx.fillText(locations[currentLocation].name, canvas.width/2, 40);
+    ctx.fillText(locations[currentLocation].intro, canvas.width/2, canvas.height/2);
+}
+
+draw();
+
+window.onresize = function(e) {
+    canvas.width = getWidth();
+    canvas.height = getHeight() - 25;
+    draw();
+}
+
+window.onkeydown = function (e) {
+    if(e.keyCode == ENTER) {
+        splitValue = input.value.split(" ");
+        lastWord = splitValue[splitValue.length - 1];
+        splitValue.pop();
+        remainingWords = splitValue.join(" ");
+        if(Object.keys(locations[currentLocation].actions).includes(input.value)) {
+            lastAction = locations[currentLocation].actions[input.value][0];
+            currentLocation = locations[currentLocation].actions[input.value][1];
+        } else if (Object.keys(locations[currentLocation].actions).includes(lastWord)) {
+            if(locations[currentLocation].actions[lastWord][1].includes(remainingWords)) {
+                lastAction = locations[currentLocation].actions[lastWord][0];
+            }
+        }
+        else {
+            lastAction = 'You can\'t do that right now'
+        }
+        input.value = '';
+    }
+    draw();
+}
+
+</script>
+<style>
+
+body {
+    margin: 0;
+}
+
+span {
+    background: black;
+    color: white;
+    font-size: 16pt;
+}
+
+div {
+    background: black;
+}
+
+input {
+    width: 98%;
+    resize: none;
+    background: black;
+    color: white;
+    font-size: 16pt;
+    border:none;
+}
+
+input:focus {
+    border:none;
+    outline: none;
+}
+
+canvas {
+    width: 100%;
+}
+
+.line {
+    height: 2px;
+    width: 100%;
+    background: white;
+}
+
+</style>
