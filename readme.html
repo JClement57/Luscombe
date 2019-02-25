@@ -5,18 +5,51 @@
 Domain Definition
 ================
 
+Text based adventures are simple games where users respond to flavor text by typing in actions to perform. Usually there is a place to display text, and then
+a console where a user types in actions. These actions are normally verbs that interact with different elements presented in the flavor text. 
 
-The Problem
+The Problem & Purpose
 ================
 
-
-Purpose
-======================
-
+Normally these games are made by professional developers working on a team with writers, or by the writers themselves using complex drag and drop interfaces
+online. Since text based adventures are story heavy, we hope to simplify this process in order to bring it closer to the creative minds that make the game good.
+By enabling creative writers to quickly and easily transform a story into a fun game, we think this will allow some amazing and original content to be created.
+Luscombe is meant to be a simple language that writers with no programming experience can pick up and quickly write a text based adventure in. 
 
 Examples
 ======================
 
+Example Input
+-------------
+```
+# A House location that you can leave
+
+Location: House
+
+Intro: "Hello World!"
+
+Actions:
+    leave: "You walk out of the house." goto yard
+End Actions
+
+# A yard location that you can rake
+
+Location: Yard
+
+Intro: "Welcome to the yard, there is a rake in front of you."
+
+Actions:
+    leave: "You go back into the house." goto house
+    rake: pick up, take, use "You use the rake."
+End Actions
+```
+
+Example Output
+--------------
+
+Our language will process this input and output a HTML file with embedded javascript. 
+
+![The result of opening the HTML output in a browser](example-output.png width="600px")
 
 Functionality
 ======================
