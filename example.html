@@ -2,44 +2,31 @@
     <title>Luscombe Example Adventure</title>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <div class="line"></div>
-    <div>
-        <span>></span>
-        <input id="console">
+    <div id="content">
+        <div id="gameTitle">
+            Example Game
+        </div>
+        <div id="locationName">
+            Location: House
+        </div>
+        <div id="intro">
+            Hello World!    
+        </div>
+        <div id="log">
+        </div>
+        <div class="inputContainer">
+        <span>></span><input id="console">
+        </div>
     </div>
 </body>
 <script>
 
 var input = document.getElementById('console');
-var canvas = document.getElementById('canvas');
-var ctx = canvas.getContext('2d')
-var done = false;
+var locationName = document.getElementById('locationName');
+var intro = document.getElementById('intro');
+var log = document.getElementById('log');
 
 const ENTER = 13;
-
-canvas.width = getWidth();
-canvas.height = getHeight() - 27;
-
-function getWidth() {
-  return Math.max(
-    document.body.scrollWidth,
-    document.documentElement.scrollWidth,
-    document.body.offsetWidth,
-    document.documentElement.offsetWidth,
-    document.documentElement.clientWidth
-  );
-}
-
-function getHeight() {
-  return Math.max(
-    document.body.scrollHeight,
-    document.documentElement.scrollHeight,
-    document.body.offsetHeight,
-    document.documentElement.offsetHeight,
-    document.documentElement.clientHeight
-  );
-}
 
 function goto(location) {
     currentLocation = location;
@@ -56,7 +43,7 @@ locations = [
 },
 {
     name: 'House',
-    intro: 'Hello World!',
+    intro: "Hello World!",
     actions: {
         leave: ['You walk out of the house.', 0]
     }
@@ -66,25 +53,23 @@ locations = [
 var currentLocation = 1;
 var lastAction = '';
 
-function draw() {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, getWidth(), getHeight());
+function update() {
+    let node = document.createElement('span');
+    let text1 = document.createTextNode("> " + input.value);
+    let text2 = document.createTextNode(lastAction);
+    let br = document.createElement('br');
+    let br2 = document.createElement('br');
+    let br3 = document.createElement('br');
+    node.appendChild(text1);
+    node.appendChild(br);
+    node.appendChild(text2);
+    log.appendChild(node);
+    log.appendChild(br2);
+    log.appendChild(br3);
+    log.scrollTop = log.scrollHeight;
 
-    ctx.fillStyle = "white";
-    ctx.font = "30pt Arial";
-    ctx.textAlign = "start";
-    ctx.fillText('->' + lastAction, 20, canvas.height - 40);
-    ctx.textAlign = "center";
-    ctx.fillText(locations[currentLocation].name, canvas.width/2, 40);
-    ctx.fillText(locations[currentLocation].intro, canvas.width/2, canvas.height/2);
-}
-
-draw();
-
-window.onresize = function(e) {
-    canvas.width = getWidth();
-    canvas.height = getHeight() - 27;
-    draw();
+    locationName.innerText = "Location: " + locations[currentLocation].name;
+    intro.innerText = locations[currentLocation].intro;
 }
 
 window.onkeydown = function (e) {
@@ -99,40 +84,74 @@ window.onkeydown = function (e) {
         } else if (Object.keys(locations[currentLocation].actions).includes(lastWord)) {
             if(locations[currentLocation].actions[lastWord][1].includes(remainingWords)) {
                 lastAction = locations[currentLocation].actions[lastWord][0];
+            } else {
+                lastAction = 'You can\'t do that right now'
             }
         }
         else {
             lastAction = 'You can\'t do that right now'
         }
+        update();
         input.value = '';
     }
-    draw();
 }
 
 </script>
 <style>
 
-body {
-    margin: 0;
-}
-
-span {
-    background: black;
+#content {
+    background-color: black;
     color: white;
-    font-size: 16pt;
+    padding: 30px;
+    font-size: 14pt;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    border: 3px solid white;
+    border: 3px solid white;
 }
 
-div {
-    background: black;
+#gameTitle {
+    flex-shrink: 0;
+    text-align: center;
+    border: 3px solid white;
+    padding: 10px 0px 10px 0px;
+}
+
+#locationName {
+    flex-shrink: 0;
+    padding: 10px 10px 10px 10px;
+    border-left: 3px solid white;
+    border-right: 3px solid white;
+}
+
+#intro {
+    flex-shrink: 0;
+    padding: 10px 10px 10px 10px;
+    border-bottom: 3px solid white;
+    border-left: 3px solid white;
+    border-right: 3px solid white;
+}
+
+#log {
+    margin-top: 10px;
+    overflow-y: auto;
+}
+
+body {
+    padding: 30px;
+    margin: 0;
+    background-color: black; 
 }
 
 input {
+    padding-left: 5px;
     width: 98%;
     resize: none;
     background: black;
     color: white;
-    font-size: 16pt;
     border:none;
+    font-size: 14pt;
 }
 
 input:focus {
@@ -140,14 +159,22 @@ input:focus {
     outline: none;
 }
 
-canvas {
-    width: 100%;
+.inputContainer {
+    flex-shrink: 0;
+    flex-direction: row;
 }
 
-.line {
-    height: 2px;
-    width: 100%;
-    background: white;
+#log::-webkit-scrollbar {
+    width: 1em;
+}
+ 
+#log::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+ 
+#log::-webkit-scrollbar-thumb {
+  background-color: white;
+  outline: 1px solid white;
 }
 
 </style>

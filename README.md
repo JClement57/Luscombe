@@ -11,6 +11,8 @@ TBD
 WORK IN PROGRESS
 
 ```
+Title: Example Game
+
 # A House location that you can leave
 
 Location: House
