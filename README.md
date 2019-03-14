@@ -4,33 +4,59 @@ A choose your own adventure generator DSL.
 
 ## Specs
 
-TBD
-
 ### Examples
 
-WORK IN PROGRESS
+```Luscombe
+INVENTORY {
+    Cloak {
+        Put on, use {
+            PRINT { You are invisible now }
+        }
+    }
+}
 
-```
-Title: Example Game
+// this is a comment and this is the house location
+House {
+    COUNTERS {
+        times in yard = 0 // spaces in variable names (eww)
+    }
 
-# A House location that you can leave
+    INTRO {
+        PRINT { Hello World! }
+    }
 
-Location: House
+    ACTIONS {
+        Leave {
+            GOTO { yard } // case insensitive
+            PRINT { You walk out of the house. }
+            times in yard + 1 // add one to times in yard
+        }
+    }
+}
 
-Intro: "Hello World!"
+Yard {
+    COUNTERS {
+        timesRakeUsed + 0 // Initilize timesRakeUsed to 0, then add 0 to it
+    }
 
-Actions:
-    leave: "You walk out of the house." goto yard
-End Actions
+    INTRO {
+        PRINT { Welcome to the yard, there is a rake in front of you. }
+    }
 
-# A yard location that you can rake
+    ACTIONS {
+        Leave {
+            GOTO { house }
+            PRINT { You walk out of the yard. }
+        }
+    }
 
-Location: Yard
-
-Intro: "Welcome to the yard, there is a rake in front of you."
-
-Actions:
-    leave: "You go back into the house." goto house
-    rake: pick up, take, use "You use the rake."
-End Actions
+    OBJECTS {
+        rake {
+            use, pick up {s
+                PRINT { You use the rake }
+                timesRakeUsed + 1
+            }
+        }
+    }
+}
 ```
