@@ -1,26 +1,40 @@
-Location: House
-
-Image: /assets/img.png
-
-Intro: blah blah you see a bucket
-
-key {
-    look, examine, look at: "you see it"
-    take, pick up: "you pick up the key"
+INVENTORY {
+    Cloak {
+        Put on { 
+            PRINT { You are invisible now }
+        }
+    }
 }
 
-actions: {
-    climb: goto Sky
-    walk north: goto Sky
+// this is the house
+House {
+    COUNTERS {
+        tryKey = 0 
+        anotherCounter = 8
+    }
+
+    INTRO {
+        PRINT { blah blah you see a bucket }
+    }
+
+    ACTIONS {
+        Climb { 
+            GOTO { Sky }
+        }
+        Walk North { 
+            IF tryKey == 9 { 
+                GOTO { North }
+            } ELSE {
+                tryKey + 1
+                PRINT { You can't open the door, you have tried <tryKey> times }
+            }
+        }
+    }
+
+    OBJECTS {
+        Key {
+            look, examine { you see a key }
+            take, pick up { you pick up the key }
+        }
+    }
 }
-
-#####
-
-Location: Sky
-
-key {
-    use key: if key: you unlock the door
-}
-
-
-### keywords: goto, Location, Image, Into
