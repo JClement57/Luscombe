@@ -19,8 +19,65 @@ To this end, Luscombe is meant to be a simple language that writers with no prog
 Examples
 ======================
 
-Example Input
+Example Input *CHANGED*
 -------------
+```
+INVENTORY {
+    Cloak {
+        Put on, use {
+            PRINT { You are invisible now }
+        }
+    }
+}
+
+// this is a comment and this is the house location
+House {
+    COUNTERS {
+        times in yard = 0 // spaces in variable names (eww)
+    }
+
+    INTRO {
+        PRINT { Hello World! }
+    }
+
+    ACTIONS {
+        Leave {
+            GOTO { yard } // case insensitive
+            PRINT { You walk out of the house. }
+            times in yard + 1 // add one to times in yard
+        }
+    }
+}
+
+Yard {
+    COUNTERS {
+        timesRakeUsed + 0 // Initilize timesRakeUsed to 0, then add 0 to it
+    }
+
+    INTRO {
+        PRINT { Welcome to the yard, there is a rake in front of you. }
+    }
+
+    ACTIONS {
+        Leave {
+            GOTO { house }
+            PRINT { You walk out of the yard. }
+        }
+    }
+
+    OBJECTS {
+        rake {
+            use, pick up {
+                PRINT { You use the rake }
+                timesRakeUsed + 1
+            }
+        }
+    }
+}
+```
+
+This is changed a lot from the original plan below. 
+
 ```
 Title: Example Game
 
@@ -46,6 +103,19 @@ Actions:
 End Actions
 ```
 
+Most of the changes involve the structure of the code, namely adding curly braces to EVERYTHING!
+We did this in order to more easily know when parts of the code begin and end. Curly braces seemed
+like a good choice because they aren't used in normal english and that is important for our 
+language. 
+
+We changed comments to be '//' instead of '#' again because '//' is used less than '#' in
+conversation.
+
+We removed the title option and opted to make the title of the game the name of the file.
+Although we are contemplating adding some metadata options in the future.
+
+Lastly we added an INVENTORY block where you can define the items a character starts out with.
+
 Example Output
 --------------
 
@@ -60,6 +130,99 @@ Functionality
 We plan to make an Atler Grammar to recognize the input. Then, using Java, we plan to generate the HTML file from the parse tree given to us by Antlr.
 In general, this will be pretty straight forward, however, we anticipate that there will be some computation required to move from the simplicity of
 the input to the complexity of a full text based game.
+
+Grammar
+======================
+
+```Antlr
+grammar Luscombe;
+
+program : location* ('INVENTORY' inventory)? location* ;
+
+inventory: '{' item* '}';
+
+item: WORD+ '{' use* '}' ;
+
+use: WORD+ (',' WORD+)* '{' command* '}';
+
+location : WORD+ '{' properties '}' ;
+
+properties
+     : counters? actions? objects? intro?
+     | actions? counters? objects? intro?
+     | objects? counters? actions? intro?
+     | counters? objects? actions? intro?
+     | actions? objects? counters? intro?
+     | objects? actions? counters? intro?
+     | objects? actions? intro? counters?
+     | actions? objects? intro? counters?
+     | intro? objects? actions? counters?
+     | objects? intro? actions? counters?
+     | actions? intro? objects? counters?
+     | intro? actions? objects? counters?
+     | intro? counters? objects? actions?
+     | counters? intro? objects? actions?
+     | objects? intro? counters? actions?
+     | intro? objects? counters? actions?
+     | counters? objects? intro? actions?
+     | objects? counters? intro? actions?
+     | actions? counters? intro? objects?
+     | counters? actions? intro? objects?
+     | intro? actions? counters? objects?
+     | actions? intro? counters? objects?
+     | counters? intro? actions? objects?
+     | intro? counters? actions? objects? ;
+
+counters : 'COUNTERS' '{' declarations* '}';
+
+declarations : WORD+ OPERATOR NUMBER
+             | WORD+ OPERATOR WORD+;
+
+command: declarations
+       | PRINT
+       | goto
+       | add
+       | drop
+       | conditional ;
+
+add : 'ADD' '{' WORD+ '}' ;
+
+drop : 'DROP' '{' WORD+ '}' ;
+
+goto : 'GOTO' '{' WORD+ '}' ;
+
+conditional : if else? ;
+
+if : 'IF' (comparision|WORD+) '{' command* '}' ;
+
+else : 'ELSE' '{' command* '}';
+
+comparision : WORD+ COMPAREOP NUMBER
+            | WORD+ COMPAREOP WORD+;
+
+intro : 'INTRO' '{' command* '}' ;
+
+actions: 'ACTIONS' '{' action* '}' ;
+
+action: WORD+ (',' WORD+)* '{' command* '}' ;
+
+objects: 'OBJECTS' '{' item* '}' ;
+
+WS : [ \r\t\n]+ -> skip ;
+WORD : [a-zA-Z][a-zA-Z0-9]* ;
+NUMBER : [0-9]+ ;
+OPERATOR : [+=\-/*] ;
+COMPAREOP : ('=='|'<'|'>'|'>='|'<=') ;
+PRINT : 'PRINT' ' '* '{' .*? '}' ;
+COMMENT : '//' .*? [\r\n] -> skip ;
+```
+
+Some Parsed Examples
+======================
+The parse tree for our above example input was pretty big, so we split it into two different pictures.
+
+![The inventory and house location](parseTree.png width="600px")
+![The yard location](parseTree2.png width="600px")
 
 
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
