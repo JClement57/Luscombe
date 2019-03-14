@@ -1,0 +1,86 @@
+INVENTORY {
+    Eyepatch {
+        examine, look at {
+            PRINT { You recall when you lost your eye on Tortuga in a game of poker. }
+    }
+}
+
+Cell {
+    COUNTERS {
+        door = 0    // 0 is a locked door, 1 is open
+        hits = 0    // Counts number of hits the door has endured
+    }
+    INTRO {
+        PRINT { You are locked in a prison cell after getting captured by Captain Denning. The world has come to know him as... Captain Redbeard.}
+    }
+    ACTIONS {
+        look, look around, examine {
+            PRINT { You see an empty bottle of whiskey and a splintered plank }
+        }
+        open door, open gate, open cell, unlock door, unlock gate {
+            IF door == 0 {
+                PRINT { The door is locked }
+            } ELSE {
+                PRINT { The door is already open }
+            }
+        }
+        hit door, attack door, hit gate, attack gate {
+            IF Plank {
+                IF hits == 0 {
+                    PRINT { You hit the door with the Plank. It budges a little. }
+                    hits + 1 // Increment hits by 1.
+                }
+                IF hits == 1 {
+                    PRINT { You hit the door again. You can feel it giving way. }
+                    hits + 1 // Increment hits by 1.
+                }
+                IF hits == 2 {
+                    // Double line print statement
+                    PRINT { 
+                        The door crashes open. 
+                        You better get out soon or Captain Redbeard's men will find you.
+                    }
+                    hits + 1
+                    door = 1 // Increment hits by 1.
+                }
+                IF hits >= 3 {
+                    PRINT { You hit the open door... Nothing Happens. }
+                } 
+            } ELSE {
+                PRINT { You punch the iron gate and immediately regret it. }
+            }
+        } 
+        leave, exit, flee {
+            IF door == 1 {
+                PRINT { You leave the cell }
+                GOTO { Hull }
+            } ELSE {
+                PRINT { The gate is locked }
+            }
+        }
+    }
+    
+    OBJECTS {
+        Whiskey {
+            take, pick up, grab {
+                PRINT { You take the bottle. Too bad it's empty... }
+                ADD { Whiskey }
+            }
+        }
+        Plank {
+            take, pick up, grab {
+                PRINT { You grab the plank. It's heavy }
+                ADD { Plank }
+            }
+        }
+    }
+}
+
+Hull {
+    INTRO {
+        PRINT { 
+            You escape to the hull of the ship.
+            All of Redbeard's goons are here and they kill you. RIP 
+        }
+    }
+}
