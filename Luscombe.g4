@@ -36,7 +36,7 @@ properties
      | counters? intro? actions? objects?
      | intro? counters? actions? objects? ;
 
-counters : 'COUNTERS' '{' command* '}';
+counters : 'COUNTERS' '{' declarations* '}';
 
 declarations : WORD+ OPERATOR NUMBER
              | WORD+ OPERATOR WORD+;
@@ -67,7 +67,7 @@ intro : 'INTRO' '{' command* '}' ;
 
 actions: 'ACTIONS' '{' action* '}' ;
 
-action: WORD+ '{' command* '}' ;
+action: WORD+ (',' WORD+)* '{' command* '}' ;
 
 objects: 'OBJECTS' '{' item* '}' ;
 

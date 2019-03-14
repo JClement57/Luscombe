@@ -2,6 +2,7 @@ INVENTORY {
     Eyepatch {
         examine, look at {
             PRINT { You recall when you lost your eye on Tortuga in a game of poker. }
+        }
     }
 }
 

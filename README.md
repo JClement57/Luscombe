@@ -52,7 +52,7 @@ Yard {
 
     OBJECTS {
         rake {
-            use, pick up {s
+            use, pick up {
                 PRINT { You use the rake }
                 timesRakeUsed + 1
             }
