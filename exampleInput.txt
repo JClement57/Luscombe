@@ -1,40 +1,52 @@
 INVENTORY {
     Cloak {
-        Put on { 
+        Put on, use { 
             PRINT { You are invisible now }
         }
     }
 }
 
-// this is the house
+// this is a comment and this is the house location
 House {
     COUNTERS {
-        tryKey = 0 
-        anotherCounter = 8
+        times in yard = 0 // spaces in variable names (eww)
     }
 
     INTRO {
-        PRINT { blah blah you see a bucket }
+        PRINT { Hello World! }
     }
 
     ACTIONS {
-        Climb { 
-            GOTO { Sky }
-        }
-        Walk North { 
-            IF tryKey == 9 { 
-                GOTO { North }
-            } ELSE {
-                tryKey + 1
-                PRINT { You can't open the door, you have tried <tryKey> times }
-            }
+        Leave { 
+            GOTO { yard } // case insensitive
+            PRINT { You walk out of the house. }
+            times in yard + 1 // add one to times in yard
         }
     }
+}
 
+Yard {
+    COUNTERS {
+        timesRakeUsed + 0 // Initilize timesRakeUsed to 0, then add 0 to it
+    }
+    
+    INTRO {
+        PRINT { Welcome to the yard, there is a rake in front of you. }
+    }
+    
+    ACTIONS {
+        Leave { 
+            GOTO { house }
+            PRINT { You walk out of the yard. }
+        }
+    }
+    
     OBJECTS {
-        Key {
-            look, examine { you see a key }
-            take, pick up { you pick up the key }
+        rake {
+            use, pick up { 
+                PRINT { You use the rake }
+                timesRakeUsed + 1
+            }
         }
     }
 }
