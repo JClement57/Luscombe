@@ -2,3 +2,4 @@
 .idea
 .antlr
 *.png
+out/

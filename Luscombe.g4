@@ -4,72 +4,53 @@ program : location* ('INVENTORY' inventory)? location* ;
 
 inventory: '{' item* '}';
 
-item: WORD+ '{' use* '}' ;
+item: name '{' use* '}' ;
 
-use: WORD+ (',' WORD+)* '{' command* '}';
+use: name (',' name)* '{' command* '}';
 
-location : WORD+ '{' properties '}' ;
+location : name '{' properties* '}' ;
 
-properties
-     : counters? actions? objects? intro?
-     | actions? counters? objects? intro?
-     | objects? counters? actions? intro?
-     | counters? objects? actions? intro?
-     | actions? objects? counters? intro?
-     | objects? actions? counters? intro?
-     | objects? actions? intro? counters?
-     | actions? objects? intro? counters?
-     | intro? objects? actions? counters?
-     | objects? intro? actions? counters?
-     | actions? intro? objects? counters?
-     | intro? actions? objects? counters?
-     | intro? counters? objects? actions?
-     | counters? intro? objects? actions?
-     | objects? intro? counters? actions?
-     | intro? objects? counters? actions?
-     | counters? objects? intro? actions?
-     | objects? counters? intro? actions?
-     | actions? counters? intro? objects?
-     | counters? actions? intro? objects?
-     | intro? actions? counters? objects?
-     | actions? intro? counters? objects?
-     | counters? intro? actions? objects?
-     | intro? counters? actions? objects? ;
+properties: counters
+          | actions
+          | objects
+          | intro ;
 
 counters : 'COUNTERS' '{' declarations* '}';
 
-declarations : WORD+ OPERATOR NUMBER
-             | WORD+ OPERATOR WORD+;
+declarations : name OPERATOR NUMBER
+             | name OPERATOR name;
 
 command: declarations
        | PRINT
-       | goto
+       | gotolocation
        | add
        | drop
        | conditional ;
 
-add : 'ADD' '{' WORD+ '}' ;
+add : 'ADD' '{' name '}' ;
 
-drop : 'DROP' '{' WORD+ '}' ;
+drop : 'DROP' '{' name '}' ;
 
-goto : 'GOTO' '{' WORD+ '}' ;
+gotolocation : 'GOTO' '{' name '}' ;
 
-conditional : if else? ;
+conditional : ifblock elseblock? ;
 
-if : 'IF' (comparision|WORD+) '{' command* '}' ;
+ifblock : 'IF' (comparision|name) '{' command* '}' ;
 
-else : 'ELSE' '{' command* '}';
+elseblock : 'ELSE' '{' command* '}';
 
-comparision : WORD+ COMPAREOP NUMBER
-            | WORD+ COMPAREOP WORD+;
+comparision : name COMPAREOP NUMBER
+            | name COMPAREOP name;
 
 intro : 'INTRO' '{' command* '}' ;
 
 actions: 'ACTIONS' '{' action* '}' ;
 
-action: WORD+ (',' WORD+)* '{' command* '}' ;
+action: name (',' name)* '{' command* '}' ;
 
 objects: 'OBJECTS' '{' item* '}' ;
+
+name: WORD+ ;
 
 WS : [ \r\t\n]+ -> skip ;
 WORD : [a-zA-Z][a-zA-Z0-9]* ;
