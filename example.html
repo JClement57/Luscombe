@@ -51,7 +51,11 @@ locations = [
     intro: 'Welcome to the yard, there is a rake in front of you.',
     actions: {
         leave: () => {
-            print('You walk out of the yard.')
+            print('You walk out of the yard.');
+            goto(1);
+        },
+        exit: () => {
+            print('You walk out of the yard.');
             goto(1);
         },
     },
