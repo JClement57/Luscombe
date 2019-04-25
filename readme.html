@@ -24,7 +24,7 @@ Example Input *CHANGED*
 ```
 INVENTORY {
     Cloak {
-        Put on, use {
+        Put on, use { 
             PRINT { You are invisible now }
         }
     }
@@ -32,43 +32,50 @@ INVENTORY {
 
 // this is a comment and this is the house location
 House {
-    COUNTERS {
-        times in yard = 0 // spaces in variable names (eww)
-    }
-
     INTRO {
         PRINT { Hello World! }
     }
 
     ACTIONS {
-        Leave {
+        Leave { 
             GOTO { yard } // case insensitive
             PRINT { You walk out of the house. }
-            times in yard + 1 // add one to times in yard
+            IF blah == times in yard {
+                PRINT { Bobs your uncle }
+            }
+            ELSE {
+                GOTO { yard }
+            }
+            times in yard + josh // add one to times in yard
         }
     }
 }
 
 Yard {
-    COUNTERS {
-        timesRakeUsed + 0 // Initilize timesRakeUsed to 0, then add 0 to it
-    }
-
     INTRO {
         PRINT { Welcome to the yard, there is a rake in front of you. }
     }
-
+    
     ACTIONS {
-        Leave {
+        Leave, Exit { 
             GOTO { house }
             PRINT { You walk out of the yard. }
         }
     }
-
+    
     OBJECTS {
         rake {
-            use, pick up {
+            use, pick up { 
                 PRINT { You use the rake }
+                ADD rake {
+                    examine {
+                        PRINT { That's a good looking rake }
+                    }
+                    throw {
+                        DROP { rake }
+                        PRINT { You hit josh in the head, you kill him. }
+                    }
+                }
                 timesRakeUsed + 1
             }
         }
@@ -109,12 +116,11 @@ like a good choice because they aren't used in normal english and that is import
 language. 
 
 We changed comments to be '//' instead of '#' again because '//' is used less than '#' in
-conversation.
+conversation. We added else-if statements to allow for more control in the hands of the developer.
 
-We removed the title option and opted to make the title of the game the name of the file.
-Although we are contemplating adding some metadata options in the future.
+Lastly we added an INVENTORY block where you can define the items a character starts out with. 
 
-Lastly we added an INVENTORY block where you can define the items a character starts out with.
+In our most recent iteration we removed the COUNTERS block as it made more sense to dynamically create variables. If the developer still desires to instantiate variables, they can do so in the INTRO block of a location.
 
 Example Output
 --------------
@@ -131,7 +137,7 @@ We plan to make an Atler Grammar to recognize the input. Then, using Java, we pl
 In general, this will be pretty straight forward, however, we anticipate that there will be some computation required to move from the simplicity of
 the input to the complexity of a full text based game.
 
-Grammar
+Grammar *CHANGED*
 ======================
 
 ```Antlr
@@ -141,81 +147,63 @@ program : location* ('INVENTORY' inventory)? location* ;
 
 inventory: '{' item* '}';
 
-item: WORD+ '{' use* '}' ;
+item: name '{' action* '}' ;
 
-use: WORD+ (',' WORD+)* '{' command* '}';
+location : name '{' properties* '}' ;
 
-location : WORD+ '{' properties '}' ;
+properties: actions
+          | objects
+          | intro ;
 
-properties
-     : counters? actions? objects? intro?
-     | actions? counters? objects? intro?
-     | objects? counters? actions? intro?
-     | counters? objects? actions? intro?
-     | actions? objects? counters? intro?
-     | objects? actions? counters? intro?
-     | objects? actions? intro? counters?
-     | actions? objects? intro? counters?
-     | intro? objects? actions? counters?
-     | objects? intro? actions? counters?
-     | actions? intro? objects? counters?
-     | intro? actions? objects? counters?
-     | intro? counters? objects? actions?
-     | counters? intro? objects? actions?
-     | objects? intro? counters? actions?
-     | intro? objects? counters? actions?
-     | counters? objects? intro? actions?
-     | objects? counters? intro? actions?
-     | actions? counters? intro? objects?
-     | counters? actions? intro? objects?
-     | intro? actions? counters? objects?
-     | actions? intro? counters? objects?
-     | counters? intro? actions? objects?
-     | intro? counters? actions? objects? ;
-
-counters : 'COUNTERS' '{' declarations* '}';
-
-declarations : WORD+ OPERATOR NUMBER
-             | WORD+ OPERATOR WORD+;
+declarations : name OPERATOR NUMBER
+             | name OPERATOR name;
 
 command: declarations
        | PRINT
-       | goto
+       | gotolocation
        | add
        | drop
        | conditional ;
 
-add : 'ADD' '{' WORD+ '}' ;
+add : 'ADD' item ;
 
-drop : 'DROP' '{' WORD+ '}' ;
+drop : 'DROP' '{' name '}' ;
 
-goto : 'GOTO' '{' WORD+ '}' ;
+gotolocation : 'GOTO' '{' name '}' ;
 
-conditional : if else? ;
+conditional : ifblock elseIfBlock* elseblock? ;
 
-if : 'IF' (comparision|WORD+) '{' command* '}' ;
+ifblock : 'IF' (comparison|name) '{' command* '}' ;
 
-else : 'ELSE' '{' command* '}';
+elseIfBlock : 'ELSE IF' (comparison|name) '{' command* '}' ;
 
-comparision : WORD+ COMPAREOP NUMBER
-            | WORD+ COMPAREOP WORD+;
+elseblock : 'ELSE' '{' command* '}';
+
+comparison : name COMPAREOP NUMBER
+            | NUMBER COMPAREOP NUMBER
+            | NUMBER COMPAREOP name
+            | name COMPAREOP name;
 
 intro : 'INTRO' '{' command* '}' ;
 
 actions: 'ACTIONS' '{' action* '}' ;
 
-action: WORD+ (',' WORD+)* '{' command* '}' ;
+action: name (',' name)* '{' command* '}' ;
 
 objects: 'OBJECTS' '{' item* '}' ;
+
+name: WORD+ ;
 
 WS : [ \r\t\n]+ -> skip ;
 WORD : [a-zA-Z][a-zA-Z0-9]* ;
 NUMBER : [0-9]+ ;
-OPERATOR : [+=\-/*] ;
+OPERATOR : [+=\-/*%] ;
 COMPAREOP : ('=='|'<'|'>'|'>='|'<=') ;
 PRINT : 'PRINT' ' '* '{' .*? '}' ;
 COMMENT : '//' .*? [\r\n] -> skip ;
 ```
+
+**Changes:** We removed the giant block of different property permutations and added different options for comparisons that were previously not accounted for. This also shows the removal of the COUNTERS block. Another change is that we removed the USE block and replaced it with ACTION because they were identical in functionality.
 
 Some Parsed Examples
 ======================
@@ -223,6 +211,13 @@ The parse tree for our above example input was pretty big, so we split it into t
 
 ![The inventory and house location](parseTree.png width="600px")
 ![The yard location](parseTree2.png width="600px")
+
+
+Output
+===========
+In our submission we have included an output.html file that is an example of a parsed and translated result. The output is generated from the pirates.txt file that is also included in the submission. We didn't use it in this readme due to it's length.
+
+We opted not to include a screenshot beyond the previous output example because the output is best experienced as a webpage. 
 
 
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
