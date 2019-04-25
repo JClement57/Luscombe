@@ -96,28 +96,28 @@ function update() {
     lastAction = '';
 }
 
-window.onkeydown = function (e) {
-    if(e.keyCode == ENTER) {
-        splitValue = input.value.split(" ");
-        lastWord = splitValue[splitValue.length - 1];
-        splitValue.pop();
-        remainingWords = splitValue.join(" ");
-        if(locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value)) {
-            locations[currentLocation].actions[input.value]();
-        } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord)) {
-            if(locations[currentLocation].objects[lastWord][0].includes(remainingWords)) {
-                locations[currentLocation].objects[lastWord][1]();
-            } else {
+    window.onkeydown = function (e) {
+        if (e.keyCode == ENTER) {
+            splitValue = input.value.split(" ");
+            lastWord = splitValue[splitValue.length - 1].toLowerCase();
+            splitValue.pop();
+            remainingWords = splitValue.join(" ");
+            if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value.toLowerCase())) {
+                locations[currentLocation].actions[input.value.toLowerCase()]();
+            } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord.toLowerCase())) {
+                if (locations[currentLocation].objects[lastWord][0].includes(remainingWords.toLowerCase())) {
+                    locations[currentLocation].objects[lastWord][1]();
+                } else {
+                    print('I don\'t know what you mean');
+                }
+            }
+            else {
                 print('I don\'t know what you mean');
             }
+            update();
+            input.value = '';
         }
-        else {
-            print('I don\'t know what you mean');
-        }
-        update();
-        input.value = '';
     }
-}
 
 </script>
 <style>
