@@ -61,9 +61,9 @@ Cell {
         Whiskey {
             take, pick up, grab {
                 PRINT { You take the bottle. Too bad it's empty... }
-                ADD Eyepatch {
+                ADD Whiskey {
                     examine, look at {
-                        PRINT { You recall when you lost your eye in a game of poker on Tortuga. }
+                        PRINT { An empty bottle of whiskey. }
                     }
                     drink {
                         PRINT { You wish... }

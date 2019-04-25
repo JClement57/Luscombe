@@ -43,10 +43,16 @@ Yard {
         rake {
             use, pick up { 
                 PRINT { You use the rake }
+                ADD rake {
+                    examine {
+                        PRINT { That's a good looking rake }
+                    }
+                    throw {
+                        DROP { rake }
+                        PRINT { You hit josh in the head, you kill him. }
+                    }
+                }
                 timesRakeUsed + 1
-            }
-            throw {
-                PRINT { You hit josh in the head, you kill him. }
             }
         }
     }

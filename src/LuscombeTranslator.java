@@ -8,6 +8,7 @@ import org.stringtemplate.v4.ST;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * This class provides an empty implementation of {@link LuscombeListener},
@@ -18,6 +19,8 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	private int currentLocationIndex = 0;
 	private HashMap locationMap = new HashMap();
 	private List<String> variables = new ArrayList<String>();
+	private Stack<String> previousActions = new Stack<>();
+	private Stack<String> previousFunctions = new Stack<>();
 	private String programTop = "";
 	private String program = "";
 	private String location = "";
@@ -25,8 +28,35 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	private String actions = "";
 	private String locations = "";
 	private String currentFunction = "";
+
 	public String getProgram() {
 		return program;
+	}
+
+	private void pushActions() {
+		previousActions.push(actions);
+		actions = "";
+	}
+
+	private void popActions() {
+		if (!previousActions.empty()) {
+			actions = previousActions.pop();
+		} else {
+			actions = "";
+		}
+	}
+
+	private void pushFunctions() {
+		previousFunctions.push(currentFunction);
+		currentFunction = "";
+	}
+
+	private void popFunctions() {
+		if (!previousFunctions.empty()) {
+			currentFunction = previousFunctions.pop();
+		} else {
+			currentFunction = "";
+		}
 	}
 
 	/**
@@ -72,6 +102,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterItem(LuscombeParser.ItemContext ctx) {
+		pushFunctions();
 		actions += ctx.start.getText().toLowerCase() + " : {\n";
 	}
 	/**
@@ -81,7 +112,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 */
 	@Override public void exitItem(LuscombeParser.ItemContext ctx) {
 		actions += "},\n";
-		currentFunction = "";
+		popFunctions();
 	}
 	/**
 	 * {@inheritDoc}
@@ -164,13 +195,21 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAdd(LuscombeParser.AddContext ctx) { }
+	@Override public void enterAdd(LuscombeParser.AddContext ctx) {
+		pushActions();
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAdd(LuscombeParser.AddContext ctx) { }
+	@Override public void exitAdd(LuscombeParser.AddContext ctx) {
+		int index = actions.indexOf(":");
+		String key = actions.substring(0,index-1).trim();
+		actions = actions.substring(index + 1).trim();
+		currentFunction += "add('" + key.toLowerCase() + "'," + actions + ");\n";
+		popActions();
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -182,7 +221,9 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDrop(LuscombeParser.DropContext ctx) { }
+	@Override public void exitDrop(LuscombeParser.DropContext ctx) {
+		currentFunction += "drop('" + ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase() + "');\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -216,6 +257,9 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 */
 	@Override public void enterIfblock(LuscombeParser.IfblockContext ctx) {
 		currentFunction += "if(";
+		if(ctx.getChild(LuscombeParser.NameContext.class, 0) != null) {
+			currentFunction += "isInInventory('" + ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase() + "')) {\n";
+		}
 	}
 	/**
 	 * {@inheritDoc}
@@ -276,6 +320,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterIntro(LuscombeParser.IntroContext ctx) {
+		pushFunctions();
 		currentFunction += "intro: () => {\n";
 	}
 	/**
@@ -286,7 +331,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	@Override public void exitIntro(LuscombeParser.IntroContext ctx) {
 		currentFunction += "},\n";
 		location += currentFunction;
-		currentFunction = "";
+		popFunctions();
 	}
 	/**
 	 * {@inheritDoc}
@@ -294,6 +339,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterActions(LuscombeParser.ActionsContext ctx) {
+		pushActions();
 		location += "actions: {\n";
 	}
 	/**
@@ -303,7 +349,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 */
 	@Override public void exitActions(LuscombeParser.ActionsContext ctx) {
 		location += actions + "},\n";
-		actions = "";
+		popActions();
 	}
 	/**
 	 * {@inheritDoc}
@@ -311,6 +357,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterAction(LuscombeParser.ActionContext ctx) {
+		pushFunctions();
 		currentFunction += ": () => {\n";
 	}
 	/**
@@ -325,7 +372,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 				actions += ctx.getChild(i).getText().toLowerCase() + currentFunction;
 			}
 		}
-		currentFunction = "";
+		popFunctions();
 	}
 	/**
 	 * {@inheritDoc}
@@ -333,6 +380,8 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterObjects(LuscombeParser.ObjectsContext ctx) {
+		pushActions();
+		pushFunctions();
 		location += "objects: {\n";
 	}
 	/**
@@ -342,8 +391,8 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 */
 	@Override public void exitObjects(LuscombeParser.ObjectsContext ctx) {
 		location += actions + "},\n";
-		actions = "";
-		currentFunction = "";
+		popActions();
+		popFunctions();
 	}
 	/**
 	 * {@inheritDoc}
@@ -379,7 +428,10 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 		if(node.getText().contains("PRINT")) {
 			int start = node.getText().indexOf('{');
 			int end = node.getText().indexOf('}');
-			currentFunction += "print('" + node.getText().substring(start + 1, end).trim() + "');\n";
+			String message = node.getText().substring(start + 1, end).trim();
+			message = message.replaceAll("'", "\\\\'");
+			message = message.replaceAll("\n", " ");
+			currentFunction += "print('" + message + "');\n";
 		}
 	}
 	/**

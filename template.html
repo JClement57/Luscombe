@@ -2,19 +2,18 @@
     <title>Luscombe Example Adventure</title>
 </head>
 <body>
-<div id="content">
-    <div id="gameTitle">
-        Example Game
-    </div>
-    <div id="locationName">
-        Location: House
-    </div>
-    <div id="log">
-    </div>
-    <div class="inputContainer">
+    <div id="content">
+        <div id="gameTitle">
+            Luscombe Adventure!
+        </div>
+        <div id="locationName">
+        </div>
+        <div id="log">
+        </div>
+        <div class="inputContainer">
         <span>></span><input id="console">
+        </div>
     </div>
-</div>
 </body>
 <style>
 
@@ -115,6 +114,10 @@
         delete inventory[key];
     }
 
+    function isInInventory(key) {
+        return Object.keys(inventory).includes(key);
+    }
+
     function printInventory() {
         Object.keys(inventory).forEach((key, index) => {
             let output = "";
@@ -154,24 +157,24 @@
             lastWord = splitValue[splitValue.length - 1].toLowerCase();
             splitValue.pop();
             remainingWords = splitValue.join(" ").replace(" ", "").toLowerCase();
-            if (input.value.toLowerCase() == "inventory") {
+            let inputValue = input.value.toLowerCase().replace(" ", "");
+            if (inputValue == "inventory") {
                 printInventory();
-            } else if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value.toLowerCase())) {
-                locations[currentLocation].actions[input.value.toLowerCase()]();
-            } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord.toLowerCase())) {
-                if (Object.keys(locations[currentLocation].objects[lastWord]).includes(remainingWords)) {
-                    locations[currentLocation].objects[lastWord][remainingWords]();
-                } else {
-                    print('I don\'t know what you mean');
-                }
             } else if (inventory && Object.keys(inventory).includes(lastWord.toLowerCase())) {
                 if (Object.keys(inventory[lastWord]).includes(remainingWords)) {
                     inventory[lastWord][remainingWords]();
                 } else {
                     print('I don\'t know what you mean');
                 }
-            }
-            else {
+            } else if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(inputValue)) {
+                locations[currentLocation].actions[inputValue]();
+            } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord.toLowerCase())) {
+                if (Object.keys(locations[currentLocation].objects[lastWord]).includes(remainingWords)) {
+                    locations[currentLocation].objects[lastWord][remainingWords]();
+                } else {
+                    print('I don\'t know what you mean');
+                }
+            } else {
                 print('I don\'t know what you mean');
             }
             update();
