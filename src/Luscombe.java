@@ -23,7 +23,8 @@ public class Luscombe {
 //            str = str.replaceAll("\\s+","");
             templateString += str;
         }
-        templateString += ((LuscombeBaseListener) listener).getProgram() + "</script>";
+        templateString += ((LuscombeBaseListener) listener).getProgram() + "locations[currentLocation].intro();\n" +
+                "update()\n </script>";
         PrintWriter out = new PrintWriter("output.html");
         out.print(templateString);
         out.close();

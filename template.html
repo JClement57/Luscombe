@@ -113,7 +113,7 @@
     function drop(item) {
     }
 
-    var currentLocation = 1;
+    var currentLocation = 0;
     var lastAction = '';
 
     function update() {
@@ -140,12 +140,12 @@
             splitValue = input.value.split(" ");
             lastWord = splitValue[splitValue.length - 1].toLowerCase();
             splitValue.pop();
-            remainingWords = splitValue.join(" ");
+            remainingWords = splitValue.join(" ").replace(" ", "").toLowerCase();
             if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value.toLowerCase())) {
                 locations[currentLocation].actions[input.value.toLowerCase()]();
             } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord.toLowerCase())) {
-                if (locations[currentLocation].objects[lastWord][0].includes(remainingWords.toLowerCase())) {
-                    locations[currentLocation].objects[lastWord][1]();
+                if (Object.keys(locations[currentLocation].objects[lastWord]).includes(remainingWords)) {
+                    locations[currentLocation].objects[lastWord][remainingWords]();
                 } else {
                     print('I don\'t know what you mean');
                 }

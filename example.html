@@ -45,7 +45,7 @@ function drop(item) {
 locations = [
 {
     name: 'Yard',
-    intro: () => { 
+    intro: () => {
         print('Welcome to the yard, there is a rake in front of you.');
     },
     actions: {
@@ -59,9 +59,17 @@ locations = [
         },
     },
     objects: {
-        rake: [['pick up', 'take', 'use'], () => {
-            print('You use the rake.');
-        }],
+        rake : {
+            pickup : () => {
+                print('You use the rake.');
+            },
+            take: () => {
+                print('You use the rake.');
+            },
+            use : () => {
+                print('You use the rake.');
+            }
+        },
     },
 },
 {
@@ -105,12 +113,13 @@ function update() {
             splitValue = input.value.split(" ");
             lastWord = splitValue[splitValue.length - 1].toLowerCase();
             splitValue.pop();
-            remainingWords = splitValue.join(" ");
+            remainingWords = splitValue.join(" ").replace(" ", "").toLowerCase();
+            console.log(remainingWords)
             if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value.toLowerCase())) {
                 locations[currentLocation].actions[input.value.toLowerCase()]();
             } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord.toLowerCase())) {
-                if (locations[currentLocation].objects[lastWord][0].includes(remainingWords.toLowerCase())) {
-                    locations[currentLocation].objects[lastWord][1]();
+                if (Object.keys(locations[currentLocation].objects[lastWord]).includes(remainingWords)) {
+                    locations[currentLocation].objects[lastWord][remainingWords]();
                 } else {
                     print('I don\'t know what you mean');
                 }

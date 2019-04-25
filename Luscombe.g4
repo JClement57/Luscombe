@@ -24,7 +24,7 @@ command: declarations
        | drop
        | conditional ;
 
-add : 'ADD' '{' name '}' ;
+add : 'ADD' item ;
 
 drop : 'DROP' '{' name '}' ;
 
