@@ -3,7 +3,9 @@
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.stringtemplate.v4.*;
 /**
  * This class provides an empty implementation of {@link LuscombeListener},
@@ -13,6 +15,8 @@ import org.stringtemplate.v4.*;
 public class LuscombeBaseListener implements LuscombeListener {
 	int currentLocationIndex = 0;
 	HashMap locationMap = new HashMap();
+	List<String> variables = new ArrayList<String>();
+	public String programTop = "";
 	public String program = "";
 	public String location = "";
 	public String currentFunction = "";
@@ -41,7 +45,8 @@ public class LuscombeBaseListener implements LuscombeListener {
 			programTemplate.add(key.toString(), locationMap.get(key).toString());
 		}
 		program = programTemplate.render();
-		System.out.println(program);
+		String finishedProgram = programTop + program;
+		System.out.println(finishedProgram);
 	}
 	/**
 	 * {@inheritDoc}
@@ -130,7 +135,28 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeclarations(LuscombeParser.DeclarationsContext ctx) { }
+	@Override public void enterDeclarations(LuscombeParser.DeclarationsContext ctx) {
+		String operator = ctx.OPERATOR().getText();
+		String variableName = ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase();
+		String rightSide = "";
+		if(ctx.NUMBER() == null) {
+			rightSide = ctx.getChild(LuscombeParser.NameContext.class, 1).getText().toLowerCase();
+			if(!variables.contains(rightSide)) {
+				variables.add(rightSide);
+				programTop += "var " + rightSide + " = 0;\n";
+			}
+		} else {
+			rightSide = ctx.NUMBER().getText();
+		}
+		if(!operator.contains("=")) {
+			operator += "=";
+		}
+		currentFunction += variableName + " " + operator + " " + rightSide + ";\n";
+		if(!variables.contains(variableName)) {
+			variables.add(variableName);
+			programTop += "var " + variableName + " = 0;\n";
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -204,49 +230,81 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfblock(LuscombeParser.IfblockContext ctx) { }
+	@Override public void enterIfblock(LuscombeParser.IfblockContext ctx) {
+		currentFunction += "if(";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfblock(LuscombeParser.IfblockContext ctx) { }
+	@Override public void exitIfblock(LuscombeParser.IfblockContext ctx) {
+		currentFunction += "}\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElseblock(LuscombeParser.ElseblockContext ctx) { }
+	@Override public void enterElseblock(LuscombeParser.ElseblockContext ctx) {
+		currentFunction += "else {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElseblock(LuscombeParser.ElseblockContext ctx) { }
+	@Override public void exitElseblock(LuscombeParser.ElseblockContext ctx) {
+		currentFunction += "}\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparision(LuscombeParser.ComparisionContext ctx) { }
+	@Override public void enterComparision(LuscombeParser.ComparisionContext ctx) {
+		String operator = ctx.COMPAREOP().getText();
+		String variableName = ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase();
+		String rightSide = "";
+		if(ctx.NUMBER() == null) {
+			rightSide = ctx.getChild(LuscombeParser.NameContext.class, 1).getText().toLowerCase();
+			if(!variables.contains(rightSide)) {
+				variables.add(rightSide);
+				programTop += "var " + rightSide + " = 0;\n";
+			}
+		} else {
+			rightSide = ctx.NUMBER().getText();
+		}
+		currentFunction += variableName + " " + operator + " " + rightSide;
+		if(!variables.contains(variableName)) {
+			variables.add(variableName);
+			programTop += "var " + variableName + " = 0;\n";
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparision(LuscombeParser.ComparisionContext ctx) { }
+	@Override public void exitComparision(LuscombeParser.ComparisionContext ctx) {
+		currentFunction += ") {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIntro(LuscombeParser.IntroContext ctx) { }
+	@Override public void enterIntro(LuscombeParser.IntroContext ctx) {
+		currentFunction += "intro: () => {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIntro(LuscombeParser.IntroContext ctx) {
+		currentFunction += "},\n";
+		location += currentFunction;
 		currentFunction = "";
 	}
 	/**
@@ -280,7 +338,6 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 */
 	@Override public void exitAction(LuscombeParser.ActionContext ctx) {
 		currentFunction += "},\n";
-		ctx.getChild(LuscombeParser.NameContext.class, 0);
 		for (int i = 0; i < ctx.getChildCount(); i++) {
 			if(ctx.getChild(i).getClass() == LuscombeParser.NameContext.class) {
 				location += ctx.getChild(i).getText() + currentFunction;
