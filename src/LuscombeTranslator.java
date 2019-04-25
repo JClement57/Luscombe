@@ -274,6 +274,23 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterElseIfBlock(LuscombeParser.ElseIfBlockContext ctx) {
+		currentFunction += "else if(";
+		if(ctx.getChild(LuscombeParser.NameContext.class, 0) != null) {
+			currentFunction += "isInInventory('" + ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase() + "')) {\n";
+		}
+	}
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElseIfBlock(LuscombeParser.ElseIfBlockContext ctx) { currentFunction += "}\n"; }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterElseblock(LuscombeParser.ElseblockContext ctx) {
 		currentFunction += "else {\n";
 	}

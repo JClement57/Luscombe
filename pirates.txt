@@ -27,11 +27,11 @@ Cell {
                     PRINT { You hit the door with the Plank. It budges a little. }
                     hits + 1 // Increment hits by 1.
                 }
-                IF hits == 1 {
+                ELSE IF hits == 1 {
                     PRINT { You hit the door again. You can feel it giving way. }
                     hits + 1 // Increment hits by 1.
                 }
-                IF hits == 2 {
+                ELSE IF hits == 2 {
                     // Double line print statement
                     PRINT { 
                         The door crashes open. 
@@ -40,7 +40,7 @@ Cell {
                     hits + 1
                     door = 1 // Increment hits by 1.
                 }
-                IF hits >= 3 {
+                ELSE IF hits >= 3 {
                     PRINT { You hit the open door... Nothing Happens. }
                 } 
             } ELSE {

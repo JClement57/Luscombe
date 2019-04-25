@@ -8,7 +8,7 @@ import java.util.*;
 
 public class Luscombe {
     public static void main(String[] args) throws Exception {
-        CharStream input = CharStreams.fromFileName("exampleInput.txt");
+        CharStream input = CharStreams.fromFileName("pirates.txt");
         LuscombeLexer lexer = new LuscombeLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         LuscombeParser parser = new LuscombeParser(tokens);

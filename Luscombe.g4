@@ -28,9 +28,11 @@ drop : 'DROP' '{' name '}' ;
 
 gotolocation : 'GOTO' '{' name '}' ;
 
-conditional : ifblock elseblock? ;
+conditional : ifblock elseIfBlock* elseblock? ;
 
 ifblock : 'IF' (comparison|name) '{' command* '}' ;
+
+elseIfBlock : 'ELSE IF' (comparison|name) '{' command* '}' ;
 
 elseblock : 'ELSE' '{' command* '}';
 
