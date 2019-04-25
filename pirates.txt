@@ -1,16 +1,12 @@
 INVENTORY {
     Eyepatch {
         examine, look at {
-            PRINT { You recall when you lost your eye on Tortuga in a game of poker. }
+            PRINT { You recall when you lost your eye in a game of poker on Tortuga. }
         }
     }
 }
 
 Cell {
-    COUNTERS {
-        door = 0    // 0 is a locked door, 1 is open
-        hits = 0    // Counts number of hits the door has endured
-    }
     INTRO {
         PRINT { You are locked in a prison cell after getting captured by Captain Denning. The world has come to know him as... Captain Redbeard.}
     }
@@ -65,13 +61,24 @@ Cell {
         Whiskey {
             take, pick up, grab {
                 PRINT { You take the bottle. Too bad it's empty... }
-                ADD { Whiskey }
+                ADD Eyepatch {
+                    examine, look at {
+                        PRINT { You recall when you lost your eye in a game of poker on Tortuga. }
+                    }
+                    drink {
+                        PRINT { You wish... }
+                    }
+                }
             }
         }
         Plank {
             take, pick up, grab {
                 PRINT { You grab the plank. It's heavy }
-                ADD { Plank }
+                ADD Plank {
+                    examine, look at {
+                        PRINT { A sturdy wooden plank. }
+                    }
+                }
             }
         }
     }
@@ -81,7 +88,8 @@ Hull {
     INTRO {
         PRINT { 
             You escape to the hull of the ship.
-            All of Redbeard's goons are here and they kill you. RIP 
+            All of Redbeard's goons are here and they kill you. RIP
         }
+        // Game ending condition?
     }
 }
