@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.stringtemplate.v4.*;
+
 /**
  * This class provides an empty implementation of {@link LuscombeListener},
  * which can be extended to create a listener which only needs to handle a subset
@@ -65,15 +66,15 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterItem(LuscombeParser.ItemContext ctx) { }
+	@Override public void enterItem(LuscombeParser.ItemContext ctx) {
+		currentFunction = "";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitItem(LuscombeParser.ItemContext ctx) {
-		currentFunction = "";
-	}
+	@Override public void exitItem(LuscombeParser.ItemContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -94,7 +95,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterLocation(LuscombeParser.LocationContext ctx) {
-		location += "name: '" + ctx.start.getText() + "',\n";
+		location += "{\n name: '" + ctx.start.getText() + "',\n";
 		locationMap.put(ctx.start.getText().toLowerCase(), currentLocationIndex++);
 	}
 	/**
@@ -103,6 +104,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLocation(LuscombeParser.LocationContext ctx) {
+		location += "},\n";
 		program += location;
 		location = "";
 	}
@@ -118,18 +120,6 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitProperties(LuscombeParser.PropertiesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCounters(LuscombeParser.CountersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCounters(LuscombeParser.CountersContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -262,31 +252,30 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparision(LuscombeParser.ComparisionContext ctx) {
+	@Override public void enterComparison(LuscombeParser.ComparisonContext ctx) {
+		System.out.println(ctx.children.get(2).getText() + "\n\n\n");
+
 		String operator = ctx.COMPAREOP().getText();
-		String variableName = ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase();
-		String rightSide = "";
-		if(ctx.NUMBER() == null) {
-			rightSide = ctx.getChild(LuscombeParser.NameContext.class, 1).getText().toLowerCase();
-			if(!variables.contains(rightSide)) {
-				variables.add(rightSide);
-				programTop += "var " + rightSide + " = 0;\n";
+		String leftSide = ctx.children.get(0).getText();
+		String rightSide = ctx.children.get(2).getText();
+
+		for(int i = 0; i <= 2; i +=2) {
+			if (ctx.children.get(i).getClass() == LuscombeParser.NameContext.class) {
+				if (!variables.contains(ctx.children.get(i).getText())) {
+					variables.add(ctx.children.get(i).getText());
+					programTop += "var " + ctx.children.get(i).getText() + " = 0;\n";
+				}
 			}
-		} else {
-			rightSide = ctx.NUMBER().getText();
 		}
-		currentFunction += variableName + " " + operator + " " + rightSide;
-		if(!variables.contains(variableName)) {
-			variables.add(variableName);
-			programTop += "var " + variableName + " = 0;\n";
-		}
+
+		currentFunction += leftSide + " " + operator + " " + rightSide;
 	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparision(LuscombeParser.ComparisionContext ctx) {
+	@Override public void exitComparison(LuscombeParser.ComparisonContext ctx) {
 		currentFunction += ") {\n";
 	}
 	/**
@@ -340,7 +329,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 		currentFunction += "},\n";
 		for (int i = 0; i < ctx.getChildCount(); i++) {
 			if(ctx.getChild(i).getClass() == LuscombeParser.NameContext.class) {
-				location += ctx.getChild(i).getText() + currentFunction;
+				location += ctx.getChild(i).getText().toLowerCase() + currentFunction;
 			}
 		}
 		currentFunction = "";

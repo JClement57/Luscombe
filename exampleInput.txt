@@ -8,10 +8,6 @@ INVENTORY {
 
 // this is a comment and this is the house location
 House {
-    COUNTERS {
-        times in yard = 0 // spaces in variable names (eww)
-    }
-
     INTRO {
         PRINT { Hello World! }
     }
@@ -20,16 +16,18 @@ House {
         Leave { 
             GOTO { yard } // case insensitive
             PRINT { You walk out of the house. }
-            times in yard + 1 // add one to times in yard
+            IF blah == times in yard {
+                PRINT { Bobs your uncle }
+            }
+            ELSE {
+                GOTO { yard }
+            }
+            times in yard + josh // add one to times in yard
         }
     }
 }
 
 Yard {
-    COUNTERS {
-        timesRakeUsed + 0 // Initilize timesRakeUsed to 0, then add 0 to it
-    }
-    
     INTRO {
         PRINT { Welcome to the yard, there is a rake in front of you. }
     }
