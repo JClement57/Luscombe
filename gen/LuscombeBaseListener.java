@@ -14,14 +14,15 @@ import org.stringtemplate.v4.*;
  * of the available methods.
  */
 public class LuscombeBaseListener implements LuscombeListener {
-	int currentLocationIndex = 0;
-	HashMap locationMap = new HashMap();
-	List<String> variables = new ArrayList<String>();
-	public String programTop = "";
-	public String program = "";
-	public String location = "";
-	public String currentFunction = "";
-	public String locationStringTemplate = "locations = [\n" +
+	private int currentLocationIndex = 0;
+	private HashMap locationMap = new HashMap();
+	private List<String> variables = new ArrayList<String>();
+	private String programTop = "";
+	private String program = "";
+	private String location = "";
+	private String locations = "";
+	private String currentFunction = "";
+	private String locationStringTemplate = "locations = [\n" +
 			"{\n" +
 			"    <location>\n" +
 			"},\n" +
@@ -29,6 +30,10 @@ public class LuscombeBaseListener implements LuscombeListener {
 //
 //	public String actionsTemplate =
 //			"<object>: [, 1],\n" +
+	public String getProgram() {
+		return program;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -41,6 +46,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitProgram(LuscombeParser.ProgramContext ctx) {
+		program = programTop + program + "var locations = [" + locations + "];\n";
 		ST programTemplate = new ST(program);
 		for (Object key : locationMap.keySet()) {
 			programTemplate.add(key.toString(), locationMap.get(key).toString());
@@ -105,7 +111,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 */
 	@Override public void exitLocation(LuscombeParser.LocationContext ctx) {
 		location += "},\n";
-		program += location;
+		locations += location;
 		location = "";
 	}
 	/**
@@ -253,8 +259,6 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterComparison(LuscombeParser.ComparisonContext ctx) {
-		System.out.println(ctx.children.get(2).getText() + "\n\n\n");
-
 		String operator = ctx.COMPAREOP().getText();
 		String leftSide = ctx.children.get(0).getText();
 		String rightSide = ctx.children.get(2).getText();
