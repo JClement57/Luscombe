@@ -21,7 +21,8 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	private String programTop = "";
 	private String program = "";
 	private String location = "";
-	private String object = "";
+	private String inventory = "";
+	private String actions = "";
 	private String locations = "";
 	private String currentFunction = "";
 	public String getProgram() {
@@ -40,7 +41,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitProgram(LuscombeParser.ProgramContext ctx) {
-		program = programTop + program + "var locations = [" + locations + "];\n";
+		program = programTop + inventory + "var locations = [" + locations + "];\n";
 		ST programTemplate = new ST(program);
 		for (Object key : locationMap.keySet()) {
 			programTemplate.add(key.toString(), locationMap.get(key).toString());
@@ -54,20 +55,24 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInventory(LuscombeParser.InventoryContext ctx) { }
+	@Override public void enterInventory(LuscombeParser.InventoryContext ctx) {
+		inventory += "var inventory = {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInventory(LuscombeParser.InventoryContext ctx) { }
+	@Override public void exitInventory(LuscombeParser.InventoryContext ctx) {
+		inventory += actions + "};";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterItem(LuscombeParser.ItemContext ctx) {
-		location += ctx.start.getText() + " : {\n";
+		actions += ctx.start.getText().toLowerCase() + " : {\n";
 	}
 	/**
 	 * {@inheritDoc}
@@ -75,7 +80,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitItem(LuscombeParser.ItemContext ctx) {
-		location += "},\n";
+		actions += "},\n";
 		currentFunction = "";
 	}
 	/**
@@ -297,7 +302,8 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitActions(LuscombeParser.ActionsContext ctx) {
-		location += "},\n";
+		location += actions + "},\n";
+		actions = "";
 	}
 	/**
 	 * {@inheritDoc}
@@ -316,7 +322,7 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 		currentFunction += "},\n";
 		for (int i = 0; i < ctx.getChildCount(); i++) {
 			if(ctx.getChild(i).getClass() == LuscombeParser.NameContext.class) {
-				location += ctx.getChild(i).getText().toLowerCase() + currentFunction;
+				actions += ctx.getChild(i).getText().toLowerCase() + currentFunction;
 			}
 		}
 		currentFunction = "";
@@ -335,7 +341,8 @@ public class LuscombeTranslator extends LuscombeBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitObjects(LuscombeParser.ObjectsContext ctx) {
-		location += "},\n";
+		location += actions + "},\n";
+		actions = "";
 		currentFunction = "";
 	}
 	/**
