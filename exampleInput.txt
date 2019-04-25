@@ -44,7 +44,7 @@ Yard {
             use, pick up { 
                 PRINT { You use the rake }
                 timesRakeUsed + 1
-            },
+            }
             throw {
                 PRINT { You hit josh in the head, you kill him. }
             }

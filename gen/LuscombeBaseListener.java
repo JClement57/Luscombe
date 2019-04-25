@@ -20,6 +20,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 	private String programTop = "";
 	private String program = "";
 	private String location = "";
+	private String object = "";
 	private String locations = "";
 	private String currentFunction = "";
 	private String locationStringTemplate = "locations = [\n" +
@@ -27,9 +28,6 @@ public class LuscombeBaseListener implements LuscombeListener {
 			"    <location>\n" +
 			"},\n" +
 			"];";
-//
-//	public String actionsTemplate =
-//			"<object>: [, 1],\n" +
 	public String getProgram() {
 		return program;
 	}
@@ -73,26 +71,15 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterItem(LuscombeParser.ItemContext ctx) {
-		currentFunction = "";
+		location += ctx.start.getText() + " : {\n";
 	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitItem(LuscombeParser.ItemContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUse(LuscombeParser.UseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUse(LuscombeParser.UseContext ctx) {
+	@Override public void exitItem(LuscombeParser.ItemContext ctx) {
+		location += "},\n";
 		currentFunction = "";
 	}
 	/**
@@ -343,13 +330,16 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterObjects(LuscombeParser.ObjectsContext ctx) { }
+	@Override public void enterObjects(LuscombeParser.ObjectsContext ctx) {
+		location += "objects: {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitObjects(LuscombeParser.ObjectsContext ctx) {
+		location += "},\n";
 		currentFunction = "";
 	}
 	/**

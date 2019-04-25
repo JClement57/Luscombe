@@ -4,9 +4,7 @@ program : location* ('INVENTORY' inventory)? location* ;
 
 inventory: '{' item* '}';
 
-item: name '{' use* '}' ;
-
-use: name (',' name)* '{' command* '}';
+item: name '{' action* '}' ;
 
 location : name '{' properties* '}' ;
 
