@@ -9,9 +9,6 @@
         <div id="locationName">
             Location: House
         </div>
-        <div id="intro">
-            Hello World!    
-        </div>
         <div id="log">
         </div>
         <div class="inputContainer">
@@ -23,17 +20,17 @@
 
 var input = document.getElementById('console');
 var locationName = document.getElementById('locationName');
-var intro = document.getElementById('intro');
 var log = document.getElementById('log');
 
 const ENTER = 13;
 
 function goto(location) {
     currentLocation = location;
+    locations[currentLocation].intro();
 }
 
 function print(text) {
-    lastAction = text;
+    lastAction += " " + text;
 }
 
 function add(item) {
@@ -48,7 +45,9 @@ function drop(item) {
 locations = [
 {
     name: 'Yard',
-    intro: 'Welcome to the yard, there is a rake in front of you.',
+    intro: () => { 
+        print('Welcome to the yard, there is a rake in front of you.');
+    },
     actions: {
         leave: () => {
             print('You walk out of the yard.')
@@ -63,7 +62,9 @@ locations = [
 },
 {
     name: 'House',
-    intro: "Hello World!",
+    intro: () => {
+         print("Hello World!")
+    },
     actions: {
         leave: () => {
             print('You walk out of the house.')
@@ -90,9 +91,9 @@ function update() {
     log.appendChild(br2);
     log.appendChild(br3);
     log.scrollTop = log.scrollHeight;
-
+    
     locationName.innerText = "Location: " + locations[currentLocation].name;
-    intro.innerText = locations[currentLocation].intro;
+    lastAction = '';
 }
 
 window.onkeydown = function (e) {
@@ -145,14 +146,7 @@ window.onkeydown = function (e) {
     padding: 10px 10px 10px 10px;
     border-left: 3px solid white;
     border-right: 3px solid white;
-}
-
-#intro {
-    flex-shrink: 0;
-    padding: 10px 10px 10px 10px;
     border-bottom: 3px solid white;
-    border-left: 3px solid white;
-    border-right: 3px solid white;
 }
 
 #log {
