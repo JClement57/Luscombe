@@ -107,10 +107,23 @@
         lastAction += " " + text;
     }
 
-    function add(item) {
+    function add(key, item) {
+    inventory[key] = item;
     }
 
-    function drop(item) {
+    function drop(key) {
+        delete inventory[key];
+    }
+
+    function printInventory() {
+        Object.keys(inventory).forEach((key, index) => {
+            let output = "";
+            if (index != 0) {
+                output = ", ";
+            }
+            output += key;
+            print(output);
+        });
     }
 
     var currentLocation = 0;
@@ -141,11 +154,19 @@
             lastWord = splitValue[splitValue.length - 1].toLowerCase();
             splitValue.pop();
             remainingWords = splitValue.join(" ").replace(" ", "").toLowerCase();
-            if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value.toLowerCase())) {
+            if (input.value.toLowerCase() == "inventory") {
+                printInventory();
+            } else if (locations[currentLocation].actions && Object.keys(locations[currentLocation].actions).includes(input.value.toLowerCase())) {
                 locations[currentLocation].actions[input.value.toLowerCase()]();
             } else if (locations[currentLocation].objects && Object.keys(locations[currentLocation].objects).includes(lastWord.toLowerCase())) {
                 if (Object.keys(locations[currentLocation].objects[lastWord]).includes(remainingWords)) {
                     locations[currentLocation].objects[lastWord][remainingWords]();
+                } else {
+                    print('I don\'t know what you mean');
+                }
+            } else if (inventory && Object.keys(inventory).includes(lastWord.toLowerCase())) {
+                if (Object.keys(inventory[lastWord]).includes(remainingWords)) {
+                    inventory[lastWord][remainingWords]();
                 } else {
                     print('I don\'t know what you mean');
                 }

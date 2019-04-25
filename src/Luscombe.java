@@ -14,7 +14,7 @@ public class Luscombe {
         LuscombeParser parser = new LuscombeParser(tokens);
         LuscombeParser.ProgramContext prog = parser.program();// parse the input stream!
         ParseTreeWalker walker = new ParseTreeWalker();
-        LuscombeListener listener = new LuscombeBaseListener();
+        LuscombeListener listener = new LuscombeTranslator();
         walker.walk(listener, prog);
 
         List<String> template = Files.readAllLines(Paths.get("template.html"));
@@ -23,7 +23,7 @@ public class Luscombe {
 //            str = str.replaceAll("\\s+","");
             templateString += str;
         }
-        templateString += ((LuscombeBaseListener) listener).getProgram() + "locations[currentLocation].intro();\n" +
+        templateString += ((LuscombeTranslator) listener).getProgram() + "locations[currentLocation].intro();\n" +
                 "update()\n </script>";
         PrintWriter out = new PrintWriter("output.html");
         out.print(templateString);
