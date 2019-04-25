@@ -10,12 +10,9 @@ use: name (',' name)* '{' command* '}';
 
 location : name '{' properties* '}' ;
 
-properties: counters
-          | actions
+properties: actions
           | objects
           | intro ;
-
-counters : 'COUNTERS' '{' declarations* '}';
 
 declarations : name OPERATOR NUMBER
              | name OPERATOR name;
@@ -35,11 +32,13 @@ gotolocation : 'GOTO' '{' name '}' ;
 
 conditional : ifblock elseblock? ;
 
-ifblock : 'IF' (comparision|name) '{' command* '}' ;
+ifblock : 'IF' (comparison|name) '{' command* '}' ;
 
 elseblock : 'ELSE' '{' command* '}';
 
-comparision : name COMPAREOP NUMBER
+comparison : name COMPAREOP NUMBER
+            | NUMBER COMPAREOP NUMBER
+            | NUMBER COMPAREOP name
             | name COMPAREOP name;
 
 intro : 'INTRO' '{' command* '}' ;
@@ -55,7 +54,7 @@ name: WORD+ ;
 WS : [ \r\t\n]+ -> skip ;
 WORD : [a-zA-Z][a-zA-Z0-9]* ;
 NUMBER : [0-9]+ ;
-OPERATOR : [+=\-/*] ;
+OPERATOR : [+=\-/*%] ;
 COMPAREOP : ('=='|'<'|'>'|'>='|'<=') ;
 PRINT : 'PRINT' ' '* '{' .*? '}' ;
 COMMENT : '//' .*? [\r\n] -> skip ;

@@ -3,20 +3,26 @@
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.stringtemplate.v4.*;
+
 /**
  * This class provides an empty implementation of {@link LuscombeListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
 public class LuscombeBaseListener implements LuscombeListener {
-	int currentLocationIndex = 0;
-	HashMap locationMap = new HashMap();
-	public String program = "";
-	public String location = "";
-	public String currentFunction = "";
-	public String locationStringTemplate = "locations = [\n" +
+	private int currentLocationIndex = 0;
+	private HashMap locationMap = new HashMap();
+	private List<String> variables = new ArrayList<String>();
+	private String programTop = "";
+	private String program = "";
+	private String location = "";
+	private String locations = "";
+	private String currentFunction = "";
+	private String locationStringTemplate = "locations = [\n" +
 			"{\n" +
 			"    <location>\n" +
 			"},\n" +
@@ -24,6 +30,10 @@ public class LuscombeBaseListener implements LuscombeListener {
 //
 //	public String actionsTemplate =
 //			"<object>: [, 1],\n" +
+	public String getProgram() {
+		return program;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -36,12 +46,14 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitProgram(LuscombeParser.ProgramContext ctx) {
+		program = programTop + program + "var locations = [" + locations + "];\n";
 		ST programTemplate = new ST(program);
 		for (Object key : locationMap.keySet()) {
 			programTemplate.add(key.toString(), locationMap.get(key).toString());
 		}
 		program = programTemplate.render();
-		System.out.println(program);
+		String finishedProgram = programTop + program;
+		System.out.println(finishedProgram);
 	}
 	/**
 	 * {@inheritDoc}
@@ -60,15 +72,15 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterItem(LuscombeParser.ItemContext ctx) { }
+	@Override public void enterItem(LuscombeParser.ItemContext ctx) {
+		currentFunction = "";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitItem(LuscombeParser.ItemContext ctx) {
-		currentFunction = "";
-	}
+	@Override public void exitItem(LuscombeParser.ItemContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -89,7 +101,7 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterLocation(LuscombeParser.LocationContext ctx) {
-		location += "name: '" + ctx.start.getText() + "',\n";
+		location += "{\n name: '" + ctx.start.getText() + "',\n";
 		locationMap.put(ctx.start.getText().toLowerCase(), currentLocationIndex++);
 	}
 	/**
@@ -98,7 +110,8 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLocation(LuscombeParser.LocationContext ctx) {
-		program += location;
+		location += "},\n";
+		locations += location;
 		location = "";
 	}
 	/**
@@ -118,19 +131,28 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCounters(LuscombeParser.CountersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCounters(LuscombeParser.CountersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDeclarations(LuscombeParser.DeclarationsContext ctx) { }
+	@Override public void enterDeclarations(LuscombeParser.DeclarationsContext ctx) {
+		String operator = ctx.OPERATOR().getText();
+		String variableName = ctx.getChild(LuscombeParser.NameContext.class, 0).getText().toLowerCase();
+		String rightSide = "";
+		if(ctx.NUMBER() == null) {
+			rightSide = ctx.getChild(LuscombeParser.NameContext.class, 1).getText().toLowerCase();
+			if(!variables.contains(rightSide)) {
+				variables.add(rightSide);
+				programTop += "var " + rightSide + " = 0;\n";
+			}
+		} else {
+			rightSide = ctx.NUMBER().getText();
+		}
+		if(!operator.contains("=")) {
+			operator += "=";
+		}
+		currentFunction += variableName + " " + operator + " " + rightSide + ";\n";
+		if(!variables.contains(variableName)) {
+			variables.add(variableName);
+			programTop += "var " + variableName + " = 0;\n";
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -204,49 +226,78 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfblock(LuscombeParser.IfblockContext ctx) { }
+	@Override public void enterIfblock(LuscombeParser.IfblockContext ctx) {
+		currentFunction += "if(";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfblock(LuscombeParser.IfblockContext ctx) { }
+	@Override public void exitIfblock(LuscombeParser.IfblockContext ctx) {
+		currentFunction += "}\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElseblock(LuscombeParser.ElseblockContext ctx) { }
+	@Override public void enterElseblock(LuscombeParser.ElseblockContext ctx) {
+		currentFunction += "else {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElseblock(LuscombeParser.ElseblockContext ctx) { }
+	@Override public void exitElseblock(LuscombeParser.ElseblockContext ctx) {
+		currentFunction += "}\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparision(LuscombeParser.ComparisionContext ctx) { }
+	@Override public void enterComparison(LuscombeParser.ComparisonContext ctx) {
+		String operator = ctx.COMPAREOP().getText();
+		String leftSide = ctx.children.get(0).getText();
+		String rightSide = ctx.children.get(2).getText();
+
+		for(int i = 0; i <= 2; i +=2) {
+			if (ctx.children.get(i).getClass() == LuscombeParser.NameContext.class) {
+				if (!variables.contains(ctx.children.get(i).getText())) {
+					variables.add(ctx.children.get(i).getText());
+					programTop += "var " + ctx.children.get(i).getText() + " = 0;\n";
+				}
+			}
+		}
+
+		currentFunction += leftSide + " " + operator + " " + rightSide;
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparision(LuscombeParser.ComparisionContext ctx) { }
+	@Override public void exitComparison(LuscombeParser.ComparisonContext ctx) {
+		currentFunction += ") {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIntro(LuscombeParser.IntroContext ctx) { }
+	@Override public void enterIntro(LuscombeParser.IntroContext ctx) {
+		currentFunction += "intro: () => {\n";
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIntro(LuscombeParser.IntroContext ctx) {
+		currentFunction += "},\n";
+		location += currentFunction;
 		currentFunction = "";
 	}
 	/**
@@ -280,10 +331,9 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 */
 	@Override public void exitAction(LuscombeParser.ActionContext ctx) {
 		currentFunction += "},\n";
-		ctx.getChild(LuscombeParser.NameContext.class, 0);
 		for (int i = 0; i < ctx.getChildCount(); i++) {
 			if(ctx.getChild(i).getClass() == LuscombeParser.NameContext.class) {
-				location += ctx.getChild(i).getText() + currentFunction;
+				location += ctx.getChild(i).getText().toLowerCase() + currentFunction;
 			}
 		}
 		currentFunction = "";
