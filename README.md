@@ -64,9 +64,9 @@ The value of keys doesn't change, but items gets set to 10!
 
 ### Keywords
 
-Lastly, there are 11 words that mean specific things to the program. This words are always in all caps, and are always followed by a block. The point of these words is to tell the program what each block is. These keywords are defined in the cheat sheet below!
+There are 11 words that mean specific things to the program. These words are always in all caps, and are always followed by a block. The point of these words is to tell the program what each block is. These keywords are defined in the cheat sheet below!
 
-### items
+### Items
 
 Unlike the previous concepts, items are unique to Luscombe. Items are the building block of how you interact with the world in the game. They are pretty simple once you know how to define them, so lets start by looking at a very simple example.
 
@@ -74,7 +74,7 @@ Unlike the previous concepts, items are unique to Luscombe. Items are the buildi
 Water bottle { }
 ```
 
-This defines an object called 'Water bottle', but you can't do much with it yet, so lets at some actions.
+This defines an object called 'Water bottle', but you can't do much with it yet, so lets add some actions.
 
 ```Luscombe
 Water bottle { 
@@ -102,7 +102,7 @@ Water bottle {
 }
 ```
 
-Now the player can drink out of the water bottle by tpying 'drink water bottle', 'sip water bottle', or 'chug' water bottle! Now what if you want more actions than just drinking? Well, you just add more actions into the item block, like so.
+Now the player can drink out of the water bottle by typing 'drink water bottle', 'sip water bottle', or 'chug' water bottle! Now what if you want more actions than just drinking? Well, you just add more actions into the item block, like so.
 
 ```Luscombe
 Water bottle { 
@@ -117,7 +117,7 @@ Water bottle {
 
 There you go, you can now define items that you can interact with inside the world!
 
-### locations
+### Locations
 
 What about the environment you are in? Well, in order to define this we use something slightly similar to items called locations. We can define a location like this.
 
@@ -127,7 +127,9 @@ The Purple House { }
 
 Looks familiar doesn't it? You can now fill the location block with an INTRO, ACTIONS, and OBJECTS. We will walk through what each of the above keywords mean and do in the cheat sheet below.
 
-### Cheat sheet
+The first location defined in the file will be the location the player starts out at.
+
+### Keyword Cheat sheet
 
 #### INTRO
 
@@ -175,7 +177,7 @@ The user can type 'examine bucket' to trigger the PRINT statement.
 
 #### INVENTORY
 
-The INVENTORY keyword is used to define an inventory block that defines what items your character starts out with. Example below. Unlike the previous few keywords, the INVENTORY keyword does not go inside a location.
+The INVENTORY keyword is used to define what items your character starts out with. Unlike the previous few keywords, the INVENTORY keyword does not go inside a location, but can exist on its own.
 
 ```Luscombe
 INVENTORY {
@@ -207,7 +209,7 @@ GOTO { The Purple House }
 
 #### ADD
 
-ADD is used to add items to the inventory. The item to be added is defined inside the ADD block itself.
+ADD is used to add items to the inventory. The item to be added is defined as the ADD block itself.
 
 ```Luscombe
 ADD Soda {
@@ -235,7 +237,7 @@ First, a variable compared to a number.
 IF variable1 == 8 { }
 ```
 
-Notice the '**==**' sign instead of the '**=**' sign. This means that it is comparing the two things, not asigning 0 to variable1. Other options for comparision are '**>**', '**<**', '**>=**', and '**<=**' that each represent greater than, less than, greater than or equal to, and less than or equal to respectively.
+Notice the '**==**' sign instead of the '**=**' sign. This means that it is comparing the two numbers, not asigning 0 to variable1. Other options for comparison are '**>**', '**<**', '**>=**', and '**<=**' that each represent greater than, less than, greater than or equal to, and less than or equal to respectively.
 
 Another option for the IF statement is a variable and a variable.
 
