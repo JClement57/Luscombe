@@ -159,6 +159,18 @@ public class LuscombeBaseListener implements LuscombeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterElseIfBlock(LuscombeParser.ElseIfBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElseIfBlock(LuscombeParser.ElseIfBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterElseblock(LuscombeParser.ElseblockContext ctx) { }
 	/**
 	 * {@inheritDoc}
